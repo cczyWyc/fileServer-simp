@@ -36,32 +36,27 @@ public class HttpServer {
     /**
      * netty httpserver startup
      */
-    public void run() {
+    public void run() throws InterruptedException {
         bossGroup = new NioEventLoopGroup(1);
         workerGroup = new NioEventLoopGroup();
 
-        try {
-            ServerBootstrap serverBootstrap = new ServerBootstrap();
-            serverBootstrap.option(ChannelOption.SO_BACKLOG, 128)
-                    .childOption(ChannelOption.TCP_NODELAY, true)
-                    .childOption(ChannelOption.SO_KEEPALIVE, true)
-                    .childOption(ChannelOption.SO_REUSEADDR, true)
-                    .childOption(ChannelOption.SO_RCVBUF, 32 * 1024)
-                    .childOption(ChannelOption.SO_SNDBUF, 32 * 1024)
-                    .childOption(EpollChannelOption.SO_REUSEPORT, true)
-                    .childOption(ChannelOption.SO_KEEPALIVE, true)
-                    .childOption(ChannelOption.ALLOCATOR, PooledByteBufAllocator.DEFAULT);
-            serverBootstrap.group(bossGroup, workerGroup)
-                    .channel(NioServerSocketChannel.class)
-                    .handler(new LoggingHandler(LogLevel.INFO))
-                    .childHandler(new HttpServerInitializer());
-            Channel channel = serverBootstrap.bind(port).sync().channel();
-            logger.info("Start http file server success! Listen to the port is:" + port);
-            channel.closeFuture().sync();
-
-        } catch (InterruptedException e) {
-            logger.warn(null, e);
-        }
+        ServerBootstrap serverBootstrap = new ServerBootstrap();
+        serverBootstrap.option(ChannelOption.SO_BACKLOG, 128)
+                .childOption(ChannelOption.TCP_NODELAY, true)
+                .childOption(ChannelOption.SO_KEEPALIVE, true)
+                .childOption(ChannelOption.SO_REUSEADDR, true)
+                .childOption(ChannelOption.SO_RCVBUF, 32 * 1024)
+                .childOption(ChannelOption.SO_SNDBUF, 32 * 1024)
+                .childOption(EpollChannelOption.SO_REUSEPORT, true)
+                .childOption(ChannelOption.SO_KEEPALIVE, true)
+                .childOption(ChannelOption.ALLOCATOR, PooledByteBufAllocator.DEFAULT);
+        serverBootstrap.group(bossGroup, workerGroup)
+                .channel(NioServerSocketChannel.class)
+                .handler(new LoggingHandler(LogLevel.INFO))
+                .childHandler(new HttpServerInitializer());
+        Channel channel = serverBootstrap.bind(port).sync().channel();
+        logger.info("Start http file server success! Listen to the port is:" + port);
+        channel.closeFuture().sync();
     }
 
     /**
